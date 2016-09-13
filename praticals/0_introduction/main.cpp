@@ -20,7 +20,6 @@ bool update(float delta_time) {
   return true;
 }
 
-
 bool render() {
   phys::DrawSphere(glm::vec3(4.0f, 4.0f, 0), 1.0f, RED);
   phys::DrawSphere(glm::vec3(-4.0f, 4.0f, 0), 1.0f, RED);
@@ -28,9 +27,9 @@ bool render() {
   phys::DrawSphere(glm::vec3(0), 1.0f, GREEN);
   phys::DrawSphere(glm::vec3(0, 4.0f, 4.0f), 1.0f, BLUE);
   phys::DrawSphere(glm::vec3(0, 4.0f, -4.0f), 1.0f, BLUE);
-  phys::DrawCube(glm::vec3(0,4.0f,0));
-  phys::DrawLine(glm::vec3(0,4.0f, 4.0f), glm::vec3(0, 8.0f, 0));
-  phys::DrawLine(glm::vec3(0,4.0f, -4.0f), glm::vec3(0, 8.0f, 0));
+  phys::DrawCube(glm::vec3(0, 4.0f, 0));
+  phys::DrawLine(glm::vec3(0, 4.0f, 4.0f), glm::vec3(0, 8.0f, 0));
+  phys::DrawLine(glm::vec3(0, 4.0f, -4.0f), glm::vec3(0, 8.0f, 0));
   phys::DrawLine(glm::vec3(4.0f, 4.0f, 0), glm::vec3(0), true, ORANGE);
   phys::DrawLine(glm::vec3(-4.0f, 4.0f, 0), glm::vec3(0), true, PINK);
   phys::DrawLineCross(glm::vec3(0, 8.0f, 0), 1.0f, false);

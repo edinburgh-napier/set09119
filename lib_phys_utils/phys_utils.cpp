@@ -188,6 +188,12 @@ void SetCameraPos(const glm::vec3 &p0) {
   PV = cam.get_projection() * cam.get_view();
 }
 
+void SetCameraTarget(const glm::vec3 &p0) {
+  cam.set_target(p0);
+  PV = cam.get_projection() * cam.get_view();
+}
+
+
 void RGBAInt32::tofloat(float *const arr) const {
   arr[0] = static_cast<float>(b[0]) / 255.0f;
   arr[1] = static_cast<float>(b[1]) / 255.0f;

@@ -35,6 +35,7 @@ include_directories(${enu_gfx_SOURCE_DIR}/src ${enu_graphics_framework_incs})
 file(GLOB_RECURSE LIB_SOURCE_FILES lib_phys_utils/*.cpp lib_phys_utils/*.h)
 add_library(lib_phys_utils STATIC ${LIB_SOURCE_FILES})
 
+#Grab pratical folders
 file(GLOB children RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" praticals/*)
 SET(dirlist "")
 FOREACH(child ${children})
@@ -43,27 +44,32 @@ FOREACH(child ${children})
     LIST(APPEND dirlist ${childName})
     file(GLOB_RECURSE SOURCE_FILES ${child}/*.cpp ${child}/*.h)
     add_executable( ${childName} ${SOURCE_FILES})
+    #set_target_properties(${childName} PROPERTIES FOLDER ${childName})
+    
+    #dependencies
     target_link_libraries(${childName} enu_graphics_framework lib_phys_utils)
     target_include_directories(${childName} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib_phys_utils) 
     add_dependencies(${childName} enu_graphics_framework lib_phys_utils)
-    add_custom_command(TARGET ${childName} POST_BUILD        # Adds a post-build event to MyTest
-    COMMAND ${CMAKE_COMMAND} -E copy_directory   # which executes "cmake - E copy_if_different..."
-        "${PROJECT_SOURCE_DIR}/res"      # <--this is in-file
-        $<TARGET_FILE_DIR:${childName}>)                 # <--this is out-file path
+    
+    #copy resources to build post build script
+    add_custom_command(TARGET ${childName} POST_BUILD  
+    COMMAND ${CMAKE_COMMAND} -E copy_directory  "${PROJECT_SOURCE_DIR}/res" $<TARGET_FILE_DIR:${childName}>)
+    
+    #set outDir as debugging directory for each project
     if(${MSVC})
-file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${childName}.vcxproj.user" 
-    "<?xml version=\"1.0\" encoding=\"utf-8\"?>     \
-    <Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
-    <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
-        <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
-        <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    </PropertyGroup>
-    <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
-        <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
-        <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    </PropertyGroup>
-    </Project>")
- endif()
+      file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${childName}.vcxproj.user" 
+      "<?xml version=\"1.0\" encoding=\"utf-8\"?>     \
+        <Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
+          <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
+            <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+            <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+          </PropertyGroup>
+          <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
+            <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+            <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+           </PropertyGroup>
+        </Project>")
+     endif()
   ENDIF()
 ENDFOREACH()
 

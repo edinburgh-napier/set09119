@@ -32,7 +32,7 @@ static void Reach(int i, const vec3 &target, std::vector<Link> &const links) {
   // Get Dot of the two vectors
   float cosAngle = dot(vLinkBaseToTargetDirection, vLinkBaseToEndEffDirection);
   if (abs(cosAngle) < 1.0f) {
-	// *********************************
+    // *********************************
     // Get the Angle between the two vectors
 
 
@@ -42,7 +42,7 @@ static void Reach(int i, const vec3 &target, std::vector<Link> &const links) {
 
     // Pull out the angle component, set the link params
 
-	// *********************************
+    // *********************************
   }
 }
 
