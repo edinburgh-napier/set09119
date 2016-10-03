@@ -16,7 +16,7 @@ directional_light light;
 material mat;
 
 void Init() {
- 
+
   effB = effect();
   effB.add_shader("shaders/phys_basic.vert", GL_VERTEX_SHADER);
   effB.add_shader("shaders/phys_basic.frag", GL_FRAGMENT_SHADER);
@@ -145,19 +145,18 @@ void DrawCube(const glm::vec3 &p0, const glm::vec3 &scale, const RGBAInt32 col) 
   renderer::render(geom);
 }
 
-void DrawCube(const glm::mat4 & m, const RGBAInt32 col)
-{
-	static geometry geom = geometry_builder::create_box();
-	renderer::bind(effP);
-	auto M = m;
-	mat3 N(1.0f);
-	mat.set_diffuse(col.tovec4());
-	renderer::bind(mat, "mat");
-	renderer::bind(light, "light");
-	glUniformMatrix4fv(effP.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(PV * M));
-	glUniformMatrix4fv(effP.get_uniform_location("M"), 1, GL_FALSE, value_ptr(M));
-	glUniformMatrix3fv(effP.get_uniform_location("N"), 1, GL_FALSE, value_ptr(N));
-	renderer::render(geom);
+void DrawCube(const glm::mat4 &m, const RGBAInt32 col) {
+  static geometry geom = geometry_builder::create_box();
+  renderer::bind(effP);
+  auto M = m;
+  mat3 N(1.0f);
+  mat.set_diffuse(col.tovec4());
+  renderer::bind(mat, "mat");
+  renderer::bind(light, "light");
+  glUniformMatrix4fv(effP.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(PV * M));
+  glUniformMatrix4fv(effP.get_uniform_location("M"), 1, GL_FALSE, value_ptr(M));
+  glUniformMatrix3fv(effP.get_uniform_location("N"), 1, GL_FALSE, value_ptr(N));
+  renderer::render(geom);
 }
 
 void DrawLineCross(const glm::vec3 &p0, float radius, const bool depth, const RGBAInt32 col) {
@@ -166,21 +165,21 @@ void DrawLineCross(const glm::vec3 &p0, float radius, const bool depth, const RG
   DrawLine(p0 + glm::vec3(0, 0, radius), p0 - glm::vec3(0, 0, radius), depth, col);
 }
 
-void DrawPlane(const glm::vec3 & p0, const glm::vec3 & norm, const glm::vec3 &scale, const RGBAInt32 col)
-{
-	static geometry geom = geometry_builder::create_plane();
-	renderer::bind(effP);
-	auto M = glm::translate(mat4(1.0f), p0)* glm::scale(mat4(1.0f), scale) * mat4_cast(glm::rotation(vec3(0,1.0,0), norm));
-	mat3 N(1.0f);
-	mat.set_diffuse(col.tovec4());
-	renderer::bind(mat, "mat");
-	renderer::bind(light, "light");
-	glUniformMatrix4fv(effP.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(PV * M));
-	glUniformMatrix4fv(effP.get_uniform_location("M"), 1, GL_FALSE, value_ptr(M));
-	glUniformMatrix3fv(effP.get_uniform_location("N"), 1, GL_FALSE, value_ptr(N));
-	glDisable(GL_CULL_FACE);
-	renderer::render(geom);
-	glEnable(GL_CULL_FACE);
+void DrawPlane(const glm::vec3 &p0, const glm::vec3 &norm, const glm::vec3 &scale, const RGBAInt32 col) {
+  static geometry geom = geometry_builder::create_plane();
+  renderer::bind(effP);
+  auto M =
+      glm::translate(mat4(1.0f), p0) * glm::scale(mat4(1.0f), scale) * mat4_cast(glm::rotation(vec3(0, 1.0, 0), norm));
+  mat3 N(1.0f);
+  mat.set_diffuse(col.tovec4());
+  renderer::bind(mat, "mat");
+  renderer::bind(light, "light");
+  glUniformMatrix4fv(effP.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(PV * M));
+  glUniformMatrix4fv(effP.get_uniform_location("M"), 1, GL_FALSE, value_ptr(M));
+  glUniformMatrix3fv(effP.get_uniform_location("N"), 1, GL_FALSE, value_ptr(N));
+  glDisable(GL_CULL_FACE);
+  renderer::render(geom);
+  glEnable(GL_CULL_FACE);
 }
 
 void SetCameraPos(const glm::vec3 &p0) {
@@ -192,7 +191,6 @@ void SetCameraTarget(const glm::vec3 &p0) {
   cam.set_target(p0);
   PV = cam.get_projection() * cam.get_view();
 }
-
 
 void RGBAInt32::tofloat(float *const arr) const {
   arr[0] = static_cast<float>(b[0]) / 255.0f;
@@ -224,14 +222,15 @@ void DrawScene() {
 }
 }
 
-glm::vec3 projectOntoPlane(const glm::vec3& const point, const glm::vec3& const planeNormal, const glm::vec3& const planePosition)
-{
-	if (!(planeNormal.length() > 0.0f)) { return vec3(0); }
-	vec3 q_proj = point - dot(point - planePosition, planeNormal) * planeNormal;
-	return (q_proj);
+glm::vec3 projectOntoPlane(const glm::vec3 &point, const glm::vec3 &planeNormal, const glm::vec3 &planePosition) {
+  if (!(planeNormal.length() > 0.0f)) {
+    return vec3(0);
+  }
+  vec3 q_proj = point - dot(point - planePosition, planeNormal) * planeNormal;
+  return (q_proj);
 }
 
-std::ostream& operator<<(std::ostream& out, const glm::vec3 &v) {
-	out << "(" << v.x << "," << v.y << "," << v.z << ")";
-	return out;
+std::ostream &operator<<(std::ostream &out, const glm::vec3 &v) {
+  out << "(" << v.x << "," << v.y << "," << v.z << ")";
+  return out;
 }

@@ -47,7 +47,7 @@ void DrawCube(const glm::vec3 &p0, const glm::vec3 &scale = glm::vec3(1.0f, 1.0f
 void DrawCube(const glm::mat4 &m, const RGBAInt32 col = RED);
 }
 
-glm::vec3 projectOntoPlane(const glm::vec3 &const point, const glm::vec3 &const planeNormal,
-                           const glm::vec3 &const planePosition = glm::vec3(0));
+glm::vec3 projectOntoPlane(const glm::vec3 &point, const glm::vec3 &planeNormal,
+                           const glm::vec3 &planePosition = glm::vec3(0));
 
 std::ostream &operator<<(std::ostream &out, const glm::vec3 &v);

@@ -57,21 +57,25 @@ FOREACH(child ${children})
     
     #set outDir as debugging directory for each project
     if(${MSVC})
-      file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${childName}.vcxproj.user" 
-      "<?xml version=\"1.0\" encoding=\"utf-8\"?>     \
+    file( WRITE "${CMAKE_CURRENT_BINARY_DIR}/${childName}.vcxproj.user" 
+        "<?xml version=\"1.0\" encoding=\"utf-8\"?>
         <Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
-          <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
-            <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+        <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
+            <LocalDebuggerWorkingDirectory>$(TargetDir)</LocalDebuggerWorkingDirectory>
             <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-          </PropertyGroup>
-          <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
-            <LocalDebuggerWorkingDirectory>$(OutDir)</LocalDebuggerWorkingDirectory>
+        </PropertyGroup>
+        <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
+            <LocalDebuggerWorkingDirectory>$(TargetDir)</LocalDebuggerWorkingDirectory>
             <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-           </PropertyGroup>
+        </PropertyGroup>
         </Project>")
-     endif()
+    endif()
   ENDIF()
 ENDFOREACH()
+
+if(${MSVC})
+	  target_compile_options(enu_graphics_framework PUBLIC /MP)
+ENDIF()
 
 set_target_properties(enu_graphics_framework PROPERTIES FOLDER "DEPS")
 #set_target_properties(zlibstatic PROPERTIES FOLDER "DEPS")

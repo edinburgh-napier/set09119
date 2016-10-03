@@ -1,9 +1,9 @@
+#include "main.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <graphics_framework.h>
 #include <phys_utils.h>
 #include <thread>
-#include "main.h"
 using namespace std;
 using namespace graphics_framework;
 using namespace glm;
@@ -12,11 +12,10 @@ std::vector<sBall> balls;
 chrono::time_point<chrono::high_resolution_clock> tp_start;
 chrono::time_point<chrono::high_resolution_clock> tp_end;
 
-//use this function simulate render workload
+// use this function simulate render workload
 void doWork() {
   // this_thread::sleep_for(std::chrono::milliseconds(rand()%50));
 }
-
 
 bool update(double delta_time) {
   doWork();
@@ -26,18 +25,17 @@ bool update(double delta_time) {
   static double t = 0.0;
   static double accumulator = 0.0;
 
-    frames++;
-    accumulator += delta_time;
+  frames++;
+  accumulator += delta_time;
 
-    while (accumulator > physics_tick) {
-      ticks++;
-      //UpdatePhysics_Euler(t, physics_tick);
-      //UpdatePhysics_Verlet(t, physics_tick);
-      UpdatePhysics_rk4(t, physics_tick);
-      accumulator -= physics_tick;
-      t += physics_tick;
-      
-    }
+  while (accumulator > physics_tick) {
+    ticks++;
+    // UpdatePhysics_Euler(t, physics_tick);
+    // UpdatePhysics_Verlet(t, physics_tick);
+    UpdatePhysics_rk4(t, physics_tick);
+    accumulator -= physics_tick;
+    t += physics_tick;
+  }
 
   phys::Update(delta_time);
   return true;
@@ -45,9 +43,9 @@ bool update(double delta_time) {
 
 bool load_content() {
   phys::Init();
-  for (size_t i = 0; i < 10; i++)
-  {
-    balls.push_back({ dvec3(0), dvec3((i*2)-15.0,10+i,0), dvec3((i * 2) - 15.0,10 + i,0) });
+  for (size_t i = 0; i < 10; i++) {
+    balls.push_back({dvec3(0), dvec3((i * 2) - 15.0, 10 + i, 0),
+                     dvec3((i * 2) - 15.0, 10 + i, 0)});
   }
 
   phys::SetCameraPos(vec3(20.0f, 10.0f, 20.0f));
@@ -58,8 +56,7 @@ bool load_content() {
 }
 
 bool render() {
-  for (size_t i = 0; i < balls.size(); i++)
-  {
+  for (size_t i = 0; i < balls.size(); i++) {
     phys::DrawSphere(balls[i].position, 1.0f, RED);
   }
 

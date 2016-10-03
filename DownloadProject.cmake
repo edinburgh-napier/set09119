@@ -141,5 +141,7 @@ function(download_project)
                     ${OUTPUT_QUIET}
                     WORKING_DIRECTORY "${DL_ARGS_DOWNLOAD_DIR}"
     )
-
+    if(${MSVC})
+        add_compile_options(/MP)
+    ENDIF()
 endfunction()
