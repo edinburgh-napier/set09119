@@ -17,7 +17,7 @@ void Component::SetActive(bool b) { active_ = b; }
 
 void Component::SetParent(Entity *p) { Ent_ = p; }
 
-Entity *Component::GetParent() { return Ent_; }
+Entity *Component::GetParent() const { return Ent_; }
 
 //############## Entity ###################
 
@@ -124,10 +124,24 @@ const vector<unique_ptr<Component>> *Entity::GetComponents() const { return &com
 
 //############## Shape Renderer ###################
 
-cShapeRenderer::cShapeRenderer() : Component("ShapeRenderer") {}
+void cShapeRenderer::SetColour(const phys::RGBAInt32 c) { col_ = c; }
+
+cShapeRenderer::cShapeRenderer(SHAPES s) : shape(s), col_(RED), Component("ShapeRenderer") {}
 
 cShapeRenderer::~cShapeRenderer() {}
 
 void cShapeRenderer::Update(double delta) {}
 
-void cShapeRenderer::Render() { phys::DrawSphere(Ent_->GetPosition(), 1.0f, RED); }
+void cShapeRenderer::Render() {
+  switch (shape) {
+  case SPHERE:
+    phys::DrawSphere(Ent_->GetPosition(), 1.0f, col_);
+    break;
+  case BOX:
+    phys::DrawCube(Ent_->GetPosition(), Ent_->GetScale(), col_);
+    break;
+  default:
+    phys::DrawSphere(Ent_->GetPosition(), 1.0f, col_);
+    break;
+  }
+}

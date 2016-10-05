@@ -203,6 +203,15 @@ glm::vec4 RGBAInt32::tovec4() const {
                    static_cast<float>(b[2]) / 255.0f, static_cast<float>(b[3]) / 255.0f);
 }
 
+const RGBAInt32 RandomColour() {
+  RGBAInt32 c;
+  c.b[0] = rand() % 256;
+  c.b[1] = rand() % 256;
+  c.b[2] = rand() % 256;
+  c.b[3] = 255;
+  return c;
+}
+
 void DrawScene() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

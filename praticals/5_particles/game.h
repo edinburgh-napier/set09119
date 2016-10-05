@@ -21,7 +21,7 @@ public:
   bool IsActive();
   void SetActive(bool b);
   virtual void SetParent(Entity *p);
-  Entity *GetParent();
+  Entity *GetParent() const;
 };
 
 class Entity {
@@ -79,10 +79,14 @@ public:
 
 class cShapeRenderer : public Component {
 public:
-  cShapeRenderer();
+  enum SHAPES { SPHERE, BOX };
+  const SHAPES shape;
+  void SetColour(const phys::RGBAInt32 c);
+  cShapeRenderer(SHAPES shape);
   ~cShapeRenderer();
   void Update(double delta);
   void Render();
 
 private:
+  phys::RGBAInt32 col_;
 };

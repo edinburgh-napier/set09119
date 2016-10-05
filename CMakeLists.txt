@@ -74,7 +74,7 @@ FOREACH(child ${children})
 ENDFOREACH()
 
 if(${MSVC})
-	  target_compile_options(enu_graphics_framework PUBLIC /MP)
+      target_compile_options(enu_graphics_framework PUBLIC /MP)
 ENDIF()
 
 set_target_properties(enu_graphics_framework PROPERTIES FOLDER "DEPS")

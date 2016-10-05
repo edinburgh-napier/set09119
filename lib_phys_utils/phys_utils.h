@@ -30,6 +30,8 @@ union RGBAInt32 {
   void tofloat(float *const arr) const;
   glm::vec4 RGBAInt32::tovec4() const;
 };
+
+const RGBAInt32 RandomColour();
 void DrawScene();
 void Init();
 void Update(double delta_time);
