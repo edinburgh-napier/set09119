@@ -25,7 +25,7 @@ endforeach ()
 
 include(DownloadProject.cmake)
 download_project(PROJ enu_gfx
-  GIT_REPOSITORY      https://github.com/NapierUniversity/enu_graphics_framework
+  GIT_REPOSITORY      https://github.com/edinburgh-napier/set08116_framework
   GIT_TAG             master
   ${UPDATE_DISCONNECTED_IF_AVAILABLE}
 )
