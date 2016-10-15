@@ -9,8 +9,9 @@
 #include <vector>
 using namespace std;
 using namespace glm;
+static unsigned int numLinks = 0;
 
-static void Reach(const size_t i, const dvec3 &target, std::vector<Link> &links) {
+static void Reach(int i, const vec3 &target, std::vector<Link> &const links) {
   // our current orientation
   dquat qCur = angleAxis(links[i].m_angle, links[i].m_axis);
   // current position of this effector
@@ -29,28 +30,29 @@ static void Reach(const size_t i, const dvec3 &target, std::vector<Link> &links)
   vec3 vLinkBaseToTargetDirection = normalize(vplanetarget - vlinkBasePos);
 
   // Get Dot of the two vectors
-  float cosAngle = dot(vLinkBaseToEndEffDirection, vLinkBaseToTargetDirection);
+  float cosAngle = dot(vLinkBaseToTargetDirection, vLinkBaseToEndEffDirection);
   if (abs(cosAngle) < 1.0f) {
     // *********************************
     // Get the Angle between the two vectors
-
-
+	  float vAngle = angle(vLinkBaseToTargetDirection, vLinkBaseToEndEffDirection);
     // Turn into a Quat with our axis
-
+	  dquat vQuat = normalize(angleAxis(vAngle, vLinkAxis));
     // Multply our current Quat with it
-
+	  qCur =qCur * vQuat;
+	  qCur = normalize(qCur);
     // Pull out the angle component, set the link params
-
+	  links[i].m_angle = angle(qCur);
     // *********************************
   }
 }
 
-void ik_1dof_Update(const dvec3 & target, std::vector<Link> &links, const double linkLength) {
-  // for (size_t i = links.size(); i >= 1; --i) {
-  for (size_t i = 0; i < links.size(); ++i) {
+void ik_1dof_Update(const vec3 &const target, std::vector<Link> &const links, const float linkLength) {
+  numLinks = links.size();
+   for (size_t i = links.size(); i >= 1; --i) {
+  //for (size_t i = 0; i < links.size() - 1; ++i) {
     UpdateHierarchy();
-    Reach(i, target, links);
-    const double distance = length(dvec3(links[links.size() - 1].m_end[3]) - target);
+    Reach(i-1, target, links);
+    const float distance = length(vec3(links[links.size() - 1].m_end[3]) - target);
     if (distance < 0.5f) {
       return;
     }

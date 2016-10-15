@@ -39,9 +39,9 @@ bool update(double delta_time) {
     frames++;
     // *********************************
     // Apply Accleration to Velocity
-
+	ball.velocity += dvec3(gravity * delta_time);
     // Apply Velocity to position
-
+	ball.position += dvec3(ball.velocity * delta_time);
     // *********************************
 
     if (ball.position.y <= 0.0f) {

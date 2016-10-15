@@ -12,23 +12,27 @@ using namespace graphics_framework;
 using namespace glm;
 
 // Simulation constants
-int numLinks = 3;
-double linkLength = 2.0f; // Length of each link
+int numLinks = 5;
+float linkLength = 2.0f; // Length of each link
 std::vector<Link> links;
-dvec3 target = dvec3(4.0f, 4.0f, 0);
+std::vector<Link> slerpLinks;
+std::array<std::vector<Link>, 2> pastLink;
+bool found = false;
+int counter = 0;
+vec3 target = vec3(6.0f, 4.0f, 0);
 
 void MoveTarget() {
   target = glm::ballRand((static_cast<float>(numLinks) * linkLength) * 0.6f);
   target.y = abs(target.y);
-  // target.x = abs(target.x);
+   target.x = abs(target.x);
   cout << "boop" << endl;
 }
 
 void UpdateHierarchy() {
   for (int i = 0; i < (int)links.size(); ++i) {
-    dmat4 R1 = mat4_cast(angleAxis(links[i].m_angle, links[i].m_axis));
-    dmat4 T1 = translate(dmat4(1.0f), dvec3(linkLength, 0, 0));
-    links[i].m_base = dmat4(1.0) * R1;
+    mat4 R1 = mat4_cast(angleAxis(links[i].m_angle, links[i].m_axis));
+    mat4 T1 = translate(mat4(1.0f), vec3(linkLength, 0, 0));
+    links[i].m_base = mat4(1.0) * R1;
     links[i].m_end = links[i].m_base * T1;
     links[i].m_worldaxis = links[i].m_axis;
     if (i > 0) {
@@ -46,7 +50,10 @@ bool load_content() {
     int ax = (i + 0) % 3 == 0;
     int ay = (i + 1) % 3 == 0;
     int az = (i + 2) % 3 == 0;
-    links.push_back(Link(dvec3(ax, ay, az), 0.0));
+    links.push_back(Link(vec3(ax, ay, az), 0.0 + (float)i * 0.0f));
+	slerpLinks.push_back(Link(vec3(ax, ay, az), 0.0 + (float)i * 0.0f));
+	pastLink[0].push_back(Link(vec3(ax, ay, az), 0.0 + (float)i * 0.0f));
+    cout << vec3(ax, ay, az) << endl;
   }
   UpdateHierarchy();
   return true;
@@ -54,23 +61,48 @@ bool load_content() {
 
 void UpdateIK() {
   UpdateHierarchy();
-  const double distance = length(dvec3(links[links.size() - 1].m_end[3]) - target);
-  if (distance < 0.5) {
-    MoveTarget();
+  const float distance = length(vec3(links[links.size() - 1].m_end[3]) - target);
+  if (distance < 0.5f) {
+	  counter = 1 - counter;
+	  pastLink[counter] = links;
+	  found = true;
   }
-  //ik_1dof_Update(target, links, linkLength);
-  ik_3dof_Update(target, links, linkLength);
+  else
+  {
+	  ik_1dof_Update(target, links, linkLength);
+  }
+
+  if (found == true)
+  {
+	  MoveTarget();
+  }
+  //ik_3dof_Update(target, links, linkLength);
 }
 
 void RenderIK() {
   phys::DrawSphere(target, 0.2f, RED);
-  for (int i = 0; i < (int)links.size(); ++i) {
-    dvec3 base = links[i].m_base[3];
-    dvec3 end = links[i].m_end[3];
-    phys::DrawCube(links[i].m_base * glm::scale(dmat4(1.0), dvec3(0.5)), GREEN);
-    phys::DrawCube(links[i].m_end * glm::scale(dmat4(1.0), dvec3(0.5)), ORANGE);
-    phys::DrawLine(base, end);
-    phys::DrawPlane(base, links[i].m_worldaxis, dvec3(0.01));
+  if (found == true)
+  {
+	  for (int i = 0; i < (int)links.size(); ++i) {
+		  vec3 base = links[i].m_base[3];
+		  vec3 end = links[i].m_end[3];
+		  phys::DrawCube(links[i].m_base * glm::scale(mat4(1.0f), vec3(0.5f)), GREEN);
+		  phys::DrawCube(links[i].m_end * glm::scale(mat4(1.0f), vec3(0.5f)), ORANGE);
+		  phys::DrawLine(base, end);
+		  phys::DrawPlane(base, links[i].m_worldaxis, vec3(0.01f));
+	  }
+	  found = false;
+  }
+  else
+  {
+	  for (int i = 0; i < (int)links.size(); ++i) {
+		  vec3 base = pastLink[counter][i].m_base[3];
+		  vec3 end = pastLink[counter][i].m_end[3];
+		  phys::DrawCube(pastLink[counter][i].m_base * glm::scale(mat4(1.0f), vec3(0.5f)), GREEN);
+		  phys::DrawCube(pastLink[counter][i].m_end * glm::scale(mat4(1.0f), vec3(0.5f)), ORANGE);
+		  phys::DrawLine(base, end);
+		  phys::DrawPlane(base, pastLink[counter][i].m_worldaxis, vec3(0.01f));
+	  }
   }
 }
 
