@@ -46,7 +46,7 @@ add_dependencies(PhysicsCoursework enu_graphics_framework lib_phys_utils)
 	
 #copy resources to build post build script
 add_custom_command(TARGET PhysicsCoursework POST_BUILD  
-COMMAND ${CMAKE_COMMAND} -E copy_directory  "../res" $<TARGET_FILE_DIR:PhysicsCoursework>)
+COMMAND ${CMAKE_COMMAND} -E copy_directory  "${CMAKE_SOURCE_DIR}/../res" $<TARGET_FILE_DIR:PhysicsCoursework>)
 
 #set outDir as debugging directory for our project
 if(${MSVC})
