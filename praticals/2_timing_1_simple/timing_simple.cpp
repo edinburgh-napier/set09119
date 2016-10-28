@@ -16,27 +16,30 @@ struct sBall {
 };
 static sBall ball;
 static dvec3 gravity = dvec3(0, -10.0, 0);
+static double truth_t = sqrt(abs(2.0 * gravity.y * fallheight)) / gravity.y;
+static double truth_v = truth_t * gravity.y;
 chrono::time_point<chrono::high_resolution_clock> tp_start;
 chrono::time_point<chrono::high_resolution_clock> tp_end;
 
-//use this function simulate render workload
-void doWork() {
-  // this_thread::sleep_for(std::chrono::milliseconds(rand()%5));
-}
+// use this function simulate render workload
+void doWork() { this_thread::sleep_for(std::chrono::milliseconds(rand() % 60)); }
 
 bool update(double delta_time) {
   doWork();
   static bool done = false;
   static uint16_t frames = 0;
+  static uint16_t ticks = 0;
   if (glfwGetKey(renderer::get_window(), GLFW_KEY_SPACE)) {
     tp_start = chrono::high_resolution_clock::now();
     ball.position = dvec3(0, fallheight, 0);
+    ball.velocity = dvec3(0);
     done = false;
     frames = 0;
   }
 
   if (!done) {
     frames++;
+    ticks++;
     // *********************************
     // Apply Accleration to Velocity
 
@@ -46,10 +49,13 @@ bool update(double delta_time) {
 
     if (ball.position.y <= 0.0f) {
       tp_end = chrono::high_resolution_clock::now();
+      const auto time = chrono::duration_cast<chrono::duration<double>>(tp_end - tp_start).count();
+      cout << "\nFrames:" << frames << "\tTicks:" << ticks << "\tTicks Per Second : " << ticks / time
+           << "\nFall Time: " << time << "s\tCollision Velocity" << ball.velocity.y << "m/s"
+           << "\nTime Error:" << (abs(time) - truth_t) / truth_t
+           << "%\tVelocity Error: " << (abs(ball.velocity.y) - truth_v) / truth_v << "%" << endl;
       ball.velocity.y = 0;
       done = true;
-      cout << "Ball Took: " << chrono::duration_cast<chrono::duration<double>>(tp_end - tp_start).count()
-           << " seconds, " << frames << " frames(ticks)" << endl;
     }
   }
   phys::Update(delta_time);
@@ -64,6 +70,7 @@ bool load_content() {
   phys::SetCameraTarget(vec3(0, 10.0f, 0));
   tp_start = chrono::high_resolution_clock::now();
   tp_end = chrono::high_resolution_clock::now();
+  cout << "\nPress Space to reset ball" << endl;
   return true;
 }
 
