@@ -45,6 +45,7 @@ void DrawPlane(const glm::vec3 &p0, const glm::vec3 &norm, const glm::vec3 &scal
 
 void DrawArrow(const glm::vec3 &p0, const glm::vec3 &p1, const double thickness, const RGBAInt32 col = RED);
 void DrawSphere(const glm::vec3 &p0, float radius = 1.0f, const RGBAInt32 col = RED);
+void DrawSphere(const glm::mat4 &m, const RGBAInt32 col = RED);
 void DrawCube(const glm::vec3 &p0, const glm::vec3 &scale = glm::vec3(1.0f, 1.0f, 1.0f), const RGBAInt32 col = RED);
 void DrawCube(const glm::mat4 &m, const RGBAInt32 col = RED);
 }

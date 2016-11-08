@@ -24,7 +24,7 @@ chrono::time_point<chrono::high_resolution_clock> tp_end;
 
 // use this function simulate render workload
 void doWork() {
-  // this_thread::sleep_for(std::chrono::milliseconds(rand()%500));
+  // this_thread::sleep_for(std::chrono::milliseconds(rand()%50));
 }
 
 bool update(double delta_time) {
