@@ -1,4 +1,5 @@
 #include "main.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <graphics_framework.h>
@@ -44,8 +45,7 @@ bool update(double delta_time) {
 bool load_content() {
   phys::Init();
   for (size_t i = 0; i < 10; i++) {
-    balls.push_back({dvec3(0), dvec3((i * 2) - 15.0, 10 + i, 0),
-                     dvec3((i * 2) - 15.0, 10 + i, 0)});
+    balls.push_back({dvec3(0), dvec3((i * 2) - 15.0, 10 + i, 0), dvec3((i * 2) - 15.0, 10 + i, 0)});
   }
 
   phys::SetCameraPos(vec3(20.0f, 10.0f, 20.0f));

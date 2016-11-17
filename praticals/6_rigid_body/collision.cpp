@@ -92,7 +92,6 @@ bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cPlaneCollider &p, 
 }
 
 bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cBoxCollider &c1, const cBoxCollider &c2) {
-  //TODO:
   cout << "Box Box" << endl;
   return false;
 }

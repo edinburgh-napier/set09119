@@ -1,4 +1,5 @@
 #pragma once
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -10,7 +11,7 @@ public:
   }
   // Note- we could store this as a quaternion
   glm::dvec3 m_axis; // local axis
-  double m_angle;   // local angle
+  double m_angle;    // local angle
 
   glm::dvec3 m_worldaxis;
   glm::dmat4 m_base;

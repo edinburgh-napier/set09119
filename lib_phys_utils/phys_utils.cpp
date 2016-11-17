@@ -131,8 +131,7 @@ void DrawSphere(const glm::vec3 &p0, float radius, const RGBAInt32 col) {
   renderer::render(geom);
 }
 
-void DrawSphere(const glm::mat4 & m, const RGBAInt32 col)
-{
+void DrawSphere(const glm::mat4 &m, const RGBAInt32 col) {
   static geometry geom = geometry_builder::create_sphere();
   renderer::bind(effP);
   auto M = m;
