@@ -24,7 +24,7 @@
   { 4286611584 }
 
 namespace phys {
-
+enum PlaneType { points, wireframe, solid, textured };
 union RGBAInt32 {
   uint32_t i;
   unsigned char b[4];
@@ -49,6 +49,7 @@ void DrawSphere(const glm::vec3 &p0, float radius = 1.0f, const RGBAInt32 col = 
 void DrawSphere(const glm::mat4 &m, const RGBAInt32 col = RED);
 void DrawCube(const glm::vec3 &p0, const glm::vec3 &scale = glm::vec3(1.0f, 1.0f, 1.0f), const RGBAInt32 col = RED);
 void DrawCube(const glm::mat4 &m, const RGBAInt32 col = RED);
+void DrawGrid(const glm::vec3* points, const size_t amount, const size_t rowsize, const PlaneType pt = PlaneType::points);
 }
 
 glm::vec3 projectOntoPlane(const glm::vec3 &point, const glm::vec3 &planeNormal,

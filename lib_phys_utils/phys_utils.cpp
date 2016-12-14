@@ -173,6 +173,109 @@ void DrawCube(const glm::mat4 &m, const RGBAInt32 col) {
   renderer::render(geom);
 }
 
+void DrawGrid(const glm::vec3 *points, const size_t amount, const size_t rowsize, const PlaneType pt) {
+  if (pt == PlaneType::points) {
+    renderer::bind(effB);
+    static bool ready = false;
+    static unsigned int vao;
+    static unsigned int vbo;
+    if (!ready) {
+      glGenVertexArrays(1, &vao);
+      glBindVertexArray(vao);
+      glGenBuffers(1, &vbo);
+      ready = true;
+    }
+
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * amount, &points[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), NULL);
+
+    GLfloat colour[4];
+    RGBAInt32 col = ORANGE;
+    col.tofloat(colour);
+    glUniformMatrix4fv(effB.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(PV));
+    glUniform4fv(effB.get_uniform_location("colour_override"), 1, &colour[0]);
+
+    glDrawArrays(GL_POINTS, 0, amount);
+    glBindVertexArray(NULL);
+    return;
+  }
+  else {
+    const size_t TriangleCount = amount - 2;
+  //  const size_t IndiceCount = TriangleCount * 3;  I'm not smart enough to do this
+    renderer::bind(effB);
+    static bool ready = false;
+    static unsigned int vao;
+    static unsigned int vbo;
+    static unsigned int ibo;
+    // Generate a buffer for the indices
+    
+    if (!ready) {
+      glGenVertexArrays(1, &vao);
+      glBindVertexArray(vao);
+      glGenBuffers(1, &vbo);
+      glGenBuffers(1, &ibo);
+      ready = true;
+    }
+
+    //setup indices
+    std::vector<unsigned int> indices;
+    {
+      for (int x = 0; x < rowsize-1; x++)
+      {
+
+        for (int y = 0; y < rowsize - 1; y++)
+        {
+          //Build right tris, 
+          indices.push_back((x*rowsize) + y);
+          indices.push_back((x*rowsize) + y+1);
+          indices.push_back((x*rowsize) + (y+1)+rowsize);
+          //Build Left Tris
+          indices.push_back((x*rowsize) + y);
+          indices.push_back((x*rowsize) + (y + 1) + rowsize);
+          indices.push_back((x*rowsize) + y+ rowsize);
+        }
+      }
+    }
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+    //setup verts
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * amount, &points[0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), NULL);
+
+    GLfloat colour[4];
+    RGBAInt32 col = ORANGE;
+    col.tofloat(colour);
+    glUniformMatrix4fv(effB.get_uniform_location("MVP"), 1, GL_FALSE, value_ptr(PV));
+    glUniform4fv(effB.get_uniform_location("colour_override"), 1, &colour[0]);
+
+    if (pt == PlaneType::wireframe) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+
+    if (pt == PlaneType::wireframe) {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
+    glBindVertexArray(NULL);
+
+    if (CHECK_GL_ERROR) {
+      std::cerr << "ERROR Drawing Grid" << std::endl;
+      throw std::runtime_error("ERROR Drawing Grid");
+    }
+
+  }
+}
+
 void DrawLineCross(const glm::vec3 &p0, float radius, const bool depth, const RGBAInt32 col) {
   DrawLine(p0 + glm::vec3(radius, 0, 0), p0 - glm::vec3(radius, 0, 0), depth, col);
   DrawLine(p0 + glm::vec3(0, radius, 0), p0 - glm::vec3(0, radius, 0), depth, col);

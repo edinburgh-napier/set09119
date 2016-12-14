@@ -1,14 +1,27 @@
+#include <phys_utils.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <graphics_framework.h>
-#include <phys_utils.h>
+
 
 using namespace std;
 using namespace graphics_framework;
 using namespace glm;
 
+static vector<glm::vec3> grid;
+#define gridsize 8
+
 bool load_content() {
   phys::Init();
+  for (size_t x = 0; x < gridsize; x++)
+  {
+    for (size_t y = 0; y < gridsize; y++)
+    {
+      grid.push_back({ x*0.5, 8,  y*0.5 });
+    }
+  }
+
+
   return true;
 }
 
@@ -34,6 +47,8 @@ bool render() {
   phys::DrawLine(glm::vec3(-4.0f, 4.0f, 0), glm::vec3(0), true, PINK);
   phys::DrawLineCross(glm::vec3(0, 8.0f, 0), 1.0f, false);
   phys::DrawArrow(glm::vec3(0, 4.0f, 0), glm::vec3(0, 8.0f, 0), 1.0f, GREY);
+
+  phys::DrawGrid(&grid[0], gridsize*gridsize, gridsize, phys::wireframe);
   phys::DrawScene();
   return true;
 }
