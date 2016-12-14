@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 using namespace std;
 using namespace glm;
+const double angDamp = 1.1;
+const double linDamp = 0.1;
 
 //----------------------
 cParticle::cParticle(const string &tag) : mass(1.0), inversemass(1.0), linearDamping(1.0), Component(tag) {
@@ -39,7 +41,7 @@ void cParticle::Integrate(const double dt) {
   // set previous position to current position
   prev_position = position;
   // position += v + a * (dt^2)
-  position += velocity + ((forces + GetGravity()) * inversemass) * pow(dt, 2);
+  // position += velocity + ((forces + GetGravity()) * inversemass) * pow(dt, 2);
 
   forces = dvec3(0);
   GetParent()->SetPosition(position);
@@ -47,12 +49,16 @@ void cParticle::Integrate(const double dt) {
 
 //----------------------
 cRigidBody::cRigidBody() : angularDamping(0.9), orientation(normalize(dquat())), cParticle("RididBody") {
-  ComputeLocalInvInertiaTensor();
+  ComputeWorldInvInertia();
 }
 
 cRigidBody::~cRigidBody() {}
 
 void cRigidBody::Update(double delta) {}
+
+void cRigidBody::AddAngularImpulse(const glm::dvec3 &i) {
+  // TODO
+}
 
 void cRigidBody::AddForceAt(const glm::dvec3 &force, const glm::dvec3 &point) {
   // Add the force and torque
@@ -62,17 +68,28 @@ void cRigidBody::AddForceAt(const glm::dvec3 &force, const glm::dvec3 &point) {
 
 void cRigidBody::AddAngularForce(const glm::dvec3 &i) { torques += i; }
 
-void cRigidBody::ComputeLocalInvInertiaTensor() {
-  localInvInertia = inverse(dmat3(1.0));
-  worldInvInertia = mat4_cast(orientation) * dmat4(localInvInertia) * transpose(mat4_cast(orientation));
+void cRigidBody::ComputeWorldInvInertia() {
+  ComputeLocalInvInertiaTensor();
+  auto or = mat3_cast(orientation);
+  worldInvInertia = transpose(or) * localInvInertia * or ;
+  // orthonormalize(orientation);
+  // worldInvInertia = mat4_cast(orientation) * dmat4(localInvInertia) * transpose(mat4_cast(orientation));
 }
+
+void cRigidBody::ComputeLocalInvInertiaTensor() { localInvInertia = inverse(dmat3(1.0)); }
 
 void cRigidBody::Integrate(const double dt) {
   // recycle linear stuff
   cParticle::Integrate(dt);
 
-  angVelocity += worldInvInertia * torques * dt;
-  angVelocity *= min(pow(angularDamping, dt), 1.0);
+  angMomentum += torques * dt;
+  // super hacky dampening
+  angMomentum -= abs(angMomentum) * angDamp * dt;
+  ComputeWorldInvInertia();
+  angVelocity = worldInvInertia * angMomentum;
+
+  // angVelocity += worldInvInertia * torques * dt;
+  // angVelocity *= min(pow(angularDamping, dt), 1.0);
 
   orientation += dquat(angVelocity * dt) * orientation;
   orientation = normalize(orientation);
@@ -104,10 +121,7 @@ void cRigidSphere::ComputeLocalInvInertiaTensor() {
   worldInvInertia = mat4_cast(orientation) * dmat4(localInvInertia) * transpose(mat4_cast(orientation));
 }
 
-void cRigidPlane::ComputeLocalInvInertiaTensor() {
-  localInvInertia = mat3(0.0);
-  worldInvInertia = localInvInertia;
-}
+void cRigidPlane::ComputeLocalInvInertiaTensor() { localInvInertia = mat3(0.0); }
 
 void cRigidCube::ComputeLocalInvInertiaTensor() {
   if (inversemass == 0) {
@@ -138,4 +152,4 @@ cCollider::~cCollider() {
 void cCollider::Update(double delta) {}
 cSphereCollider::cSphereCollider() : radius(1.0), cCollider("SphereCollider") {}
 cPlaneCollider::cPlaneCollider() : normal(dvec3(0, 1.0, 0)), cCollider("PlaneCollider") {}
-cBoxCollider::cBoxCollider() : radius(1.0), cCollider("BoxCollider") {}
+cBoxCollider::cBoxCollider() : radius(0.5), cCollider("BoxCollider") {}

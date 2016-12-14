@@ -1,6 +1,6 @@
+#include "cPhysicsComponents.h"
 #include "game.h"
 #include "physics.h"
-#include "cPhysicsComponents.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <graphics_framework.h>
@@ -17,7 +17,7 @@ static unique_ptr<Entity> floorEnt;
 
 unique_ptr<Entity> CreateParticle() {
   unique_ptr<Entity> ent(new Entity());
-  ent->SetPosition(vec3(-2.0, 5.0 + (double)(rand() % 200) / 20.0,2.0));
+  ent->SetPosition(vec3(-2.0, 5.0 + (double)(rand() % 200) / 20.0, 2.0));
   unique_ptr<Component> physComponent(new cParticle());
   unique_ptr<cShapeRenderer> renderComponent(new cShapeRenderer(cShapeRenderer::SPHERE));
   renderComponent->SetColour(phys::RandomColour());
@@ -29,7 +29,7 @@ unique_ptr<Entity> CreateParticle() {
 unique_ptr<Entity> CreateBox(const vec3 &position) {
   unique_ptr<Entity> ent(new Entity());
   ent->SetPosition(position);
-  ent->SetRotation(angleAxis(-45.0f, vec3(1, 0, 0)));
+ // ent->SetRotation(angleAxis(-45.0f, vec3(1, 0, 0)));
   unique_ptr<Component> physComponent(new cRigidCube());
   unique_ptr<cShapeRenderer> renderComponent(new cShapeRenderer(cShapeRenderer::BOX));
   renderComponent->SetColour(phys::RandomColour());
@@ -89,6 +89,7 @@ bool render() {
   for (auto &e : SceneList) {
     e->Render();
   }
+  RenderPhysics();
   phys::DrawScene();
   return true;
 }

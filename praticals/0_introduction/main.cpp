@@ -28,6 +28,9 @@ bool load_content() {
 bool update(float delta_time) {
   static float rot = 0.0f;
   rot += 0.2f * delta_time;
+
+  grid[18].y = 8.0 + sin(rot);
+
   phys::SetCameraPos(rotate(vec3(15.0f, 12.0f, 15.0f), rot, vec3(0, 1.0f, 0)));
   phys::Update(delta_time);
   return true;
@@ -48,7 +51,7 @@ bool render() {
   phys::DrawLineCross(glm::vec3(0, 8.0f, 0), 1.0f, false);
   phys::DrawArrow(glm::vec3(0, 4.0f, 0), glm::vec3(0, 8.0f, 0), 1.0f, GREY);
 
-  phys::DrawGrid(&grid[0], gridsize*gridsize, gridsize, phys::wireframe);
+  phys::DrawGrid(&grid[0], gridsize*gridsize, gridsize, phys::solid);
   phys::DrawScene();
   return true;
 }

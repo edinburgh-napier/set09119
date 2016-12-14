@@ -32,14 +32,14 @@ Entity::Entity() {
 
 Entity::~Entity() {}
 
-const vec3 Entity::GetScale() const { return scale_; }
+const dvec3 Entity::GetScale() const { return scale_; }
 
-const vec3 Entity::GetPosition() const { return position_; }
+const dvec3 Entity::GetPosition() const { return position_; }
 
-const quat Entity::GetRotation() const { return rotation_; }
-const vec3 Entity::GetRotationV3() const { return glm::eulerAngles(GetRotation()); }
+const dquat Entity::GetRotation() const { return rotation_; }
+const dvec3 Entity::GetRotationV3() const { return glm::eulerAngles(GetRotation()); }
 
-const mat4 Entity::GetTranform() {
+const dmat4 Entity::GetTranform() {
   if (changed_) {
     mat4 scl = scale(scale_);
     mat4 rot = mat4_cast(rotation_);
@@ -54,24 +54,24 @@ const bool Entity::IsVisible() const { return false; }
 
 const string Entity::GetName() const { return name_; }
 
-void Entity::SetTransform(const mat4 m4) { assert(false); }
+void Entity::SetTransform(const dmat4 m4) { assert(false); }
 
-void Entity::SetScale(const vec3 &v3) {
+void Entity::SetScale(const dvec3 &v3) {
   scale_ = v3;
   changed_ = true;
 }
 
-void Entity::SetPosition(const vec3 &v3) {
+void Entity::SetPosition(const dvec3 &v3) {
   position_ = v3;
   changed_ = true;
 }
 
-void Entity::SetRotation(const vec3 &v3) {
+void Entity::SetRotation(const dvec3 &v3) {
   rotation_ = glm::quat(v3);
   changed_ = true;
 }
 
-void Entity::SetRotation(const quat &q) {
+void Entity::SetRotation(const dquat &q) {
   rotation_ = q;
   changed_ = true;
 }
@@ -100,7 +100,7 @@ void Entity::AddComponent(unique_ptr<Component> &c) {
 void Entity::RemoveComponent(Component &c) {
   // Todo: Test This
   auto position =
-      find_if(components_.begin(), components_.end(), [c](unique_ptr<Component> &p) { return p.get() == &c; });
+    find_if(components_.begin(), components_.end(), [c](unique_ptr<Component> &p) { return p.get() == &c; });
   if (position != components_.end()) {
     components_.erase(position);
   }
@@ -133,12 +133,14 @@ cShapeRenderer::~cShapeRenderer() {}
 void cShapeRenderer::Update(double delta) {}
 
 void cShapeRenderer::Render() {
+  const mat4 m = glm::translate(Ent_->GetPosition()) * mat4_cast(Ent_->GetRotation());
+
   switch (shape) {
   case SPHERE:
-    phys::DrawSphere(Ent_->GetPosition(), 1.0f, col_);
+    phys::DrawSphere(m, col_);
     break;
   case BOX:
-    phys::DrawCube(Ent_->GetPosition(), Ent_->GetScale(), col_);
+    phys::DrawCube(m, col_);
     break;
   default:
     phys::DrawSphere(Ent_->GetPosition(), 1.0f, col_);

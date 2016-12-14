@@ -7,34 +7,33 @@ using namespace std;
 using namespace glm;
 static vector<cParticle *> physicsScene;
 static vector<cCollider *> colliders;
-
+static std::vector<collisionInfo> collisions;
 static dvec3 gravity = dvec3(0, -10.0, 0);
 const double coef = 0.5;
-const double rigidcoef = 0.0;
+const double rigidcoef = 0.5;
 
 void ResolveRB(cRigidBody *const b, const collisionInfo &ci, bool which) {
   // TODO: Fix.
-  const double w = (which ? -1.0 : 1.0);
+  const double w = (which ? 1.0 : -1.0);
+  dvec3 norm = ci.normal * w;
 
   dvec3 dv = b->position - b->prev_position;
-  dvec3 r0 = b->position - ci.position;
-  dvec3 v0 = dv + cross(b->angVelocity, r0);
 
-  // I've butchered this formula pretty bad.
-  double j = -1.0 * (rigidcoef) +
-             dot(dv, ci.normal) /
-                 (dot(ci.normal, ci.normal) * (b->inversemass * 2.0) + dot(ci.normal, (cross(r0, ci.normal))));
+  dvec3 R = ci.position - b->position;
+  dvec3 Velocity = dv + cross(b->angVelocity, R);
+  b->ComputeWorldInvInertia();
+  double ImpulseNumerator = -(1.0 + rigidcoef) * dot(Velocity, norm);
+  double ImpulseDenominator = b->inversemass + dot(cross(b->worldInvInertia * cross(R, norm), R), norm);
 
-  // stop sinking
-  j = j - (ci.depth * 0.1);
+  double cheatfactor = 0.0; // stops sinking
+  dvec3 Impulse = ((ImpulseNumerator / ImpulseDenominator) + (ci.depth * cheatfactor)) * norm;
 
-  // linear impulse
-  dvec3 newVel = dv + (b->inversemass * ci.normal * j);
-  b->AddLinearImpulse(-newVel);
+  // apply impulse to primary quantities
+  b->AddLinearImpulse(b->inversemass * Impulse);
+  b->angMomentum += cross(R, Impulse);
 
-  // angular impulse
-  auto gg = cross(r0, ci.normal);
-  b->angVelocity += b->worldInvInertia * cross(r0, ci.normal * j);
+  // compute affected auxiliary quantities
+  b->angVelocity += b->worldInvInertia * cross(R, Impulse);
 }
 
 void ResolveP(cParticle *const b, const collisionInfo &ci, bool which) {
@@ -65,7 +64,7 @@ void Resolve(const collisionInfo &ci) {
 }
 
 void UpdatePhysics(const double t, const double dt) {
-  std::vector<collisionInfo> collisions;
+  collisions.clear();
   // check for collisions
   {
     for (size_t i = 0; i < colliders.size(); ++i) {
@@ -83,6 +82,12 @@ void UpdatePhysics(const double t, const double dt) {
   // Integrate
   for (auto &e : physicsScene) {
     e->Integrate(dt);
+  }
+}
+
+void RenderPhysics() {
+  for (auto &c : collisions) {
+    phys::DrawLineCross(c.position, 0.5);
   }
 }
 

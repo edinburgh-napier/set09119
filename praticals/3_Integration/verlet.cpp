@@ -9,7 +9,8 @@ void UpdatePhysics_Verlet(const double t, const double dt) {
   for (size_t i = 0; i < balls.size(); i++)
   {
     // *********************************
-    // calcualte velocity from current and previous position
+    // calcualte vector from current and previous position, V
+    // Note This is not Velocity, but could be used to calculate it.
 
     // set previous position to current position
 

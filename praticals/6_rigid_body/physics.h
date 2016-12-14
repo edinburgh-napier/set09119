@@ -3,16 +3,6 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-class cPhysics : public Component {
-public:
-  cPhysics();
-  ~cPhysics();
-  // virtual void Update(double delta);
-  // virtual void SetParent(Entity *p);
-  //
-private:
-};
-
 class cCollider;
 class cParticle;
 struct collisionInfo {
@@ -26,8 +16,7 @@ struct collisionInfo {
 void InitPhysics();
 void ShutdownPhysics();
 void UpdatePhysics(const double t, const double dt);
-
+void RenderPhysics();
 std::vector<cParticle *> &GetPhysicsScene();
 std::vector<cCollider *> &GetColliders();
 const glm::dvec3 &GetGravity();
-// extern vector<cCollider *> colliders;

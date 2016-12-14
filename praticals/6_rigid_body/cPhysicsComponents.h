@@ -31,12 +31,15 @@ public:
   glm::dquat orientation;
   glm::dmat3 localInvInertia;
   glm::dmat3 worldInvInertia;
+  glm::dvec3 angMomentum;
   glm::dvec3 angVelocity;
   glm::dvec3 torques;
   double angularDamping;
   void Update(double delta);
+  void AddAngularImpulse(const glm::dvec3 &i);
   void AddForceAt(const glm::dvec3 &force, const glm::dvec3 &point);
   void AddAngularForce(const glm::dvec3 &i);
+  void ComputeWorldInvInertia();
   virtual void ComputeLocalInvInertiaTensor();
   void Integrate(const double dt);
   void SetParent(Entity *p);
