@@ -1,13 +1,17 @@
 #include "physics.h"
 #include "collision.h"
 #include <glm/glm.hpp>
+
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/transform.hpp>
+
 using namespace std;
 using namespace glm;
 static vector<cParticle *> physicsScene;
 static vector<cCollider *> colliders;
 static std::vector<collisionInfo> collisions;
 static dvec3 gravity = dvec3(0, -10.0, 0);
-const double coef = 1.0;
+const double coef = 0.99;
 const double rigidcoef = 0.5;
 
 //----------------------
@@ -41,28 +45,20 @@ void cParticle::Integrate(const double dt) {
   GetParent()->SetPosition(position_);
 }
 
-void cParticle::Teleport(const glm::dvec3 & p)
-{
+void cParticle::Teleport(const glm::dvec3 &p) {
   position_ = p;
   GetParent()->SetPosition(position_);
 }
 
-const glm::dvec3 cParticle::GetPos() const
-{
-  return position_;
-}
+const glm::dvec3 cParticle::GetPos() const { return position_; }
 
-const glm::dvec3 cParticle::GetVel() const
-{
-  return velocity_;
-}
+const glm::dvec3 cParticle::GetVel() const { return velocity_; }
 
-const glm::dvec3 cParticle::GetForces() const
-{
-  return forces_;
-}
+const glm::dvec3 cParticle::GetForces() const { return forces_; }
 
-cCollider::cCollider(const std::string &tag) : Component(tag), position_offset(dvec3(0)){ GetColliders().push_back(this); }
+cCollider::cCollider(const std::string &tag) : Component(tag), position_offset(dvec3(0)) {
+  GetColliders().push_back(this);
+}
 
 cCollider::~cCollider() {
   auto position = std::find(GetColliders().begin(), GetColliders().end(), this);
@@ -73,30 +69,34 @@ cCollider::~cCollider() {
 
 void cCollider::Update(double delta) {}
 cSphereCollider::cSphereCollider() : radius(1.0), DebugDraw(0), cCollider("SphereCollider") {}
-void cSphereCollider::Render()
-{
-}
+void cSphereCollider::Render() {}
 
-cPlaneCollider::cPlaneCollider() : normal_offset(dvec3(0, 1.0, 0)), DebugDraw(0), infinite(0), cCollider("PlaneCollider") {}
-void cPlaneCollider::Render()
-{
-  if(DebugDraw){
-    phys::DrawPlane(GetParent()->GetPosition() + position_offset, normal_offset,dvec3(0.02));
+cPlaneCollider::cPlaneCollider()
+    : normal_offset(dvec3(0, 1.0, 0)), DebugDraw(0), infinite(0), cCollider("PlaneCollider") {}
+void cPlaneCollider::Render() {
+  if (DebugDraw) {
+    auto p = GetParent()->GetPosition() + position_offset;
+
+    phys::DrawPlane(p, normal_offset, dvec3(0.02));
+    auto transform = translate(dmat4(1.0f), p) * scale(dmat4(1.0f), GetParent()->GetScale()) *
+                     mat4_cast(rotation(dvec3(0, 1.0, 0), normal_offset));
+    // auto transform = translate(dmat4(1.0f), p);
+    phys::DrawLineCross(dvec3(transform * dvec4(1.0f, 0.0f, -1.0f, 1)), 1.0f, false, AQUA);
+    phys::DrawLineCross(dvec3(transform * dvec4(1.0f, 0.0f, 1.0f, 1)), 1.0f, false, GREEN);
+    phys::DrawLineCross(dvec3(transform * dvec4(-1.0f, 0.0f, -1.0f, 1)), 1.0f, false, AQUA);
+    phys::DrawLineCross(dvec3(transform * dvec4(-1.0f, 0.0f, 1.0f, 1)), 1.0f, false, GREEN);
   }
 }
 
-cBoxCollider::cBoxCollider() : radius(0.5), DebugDraw(0),  cCollider("BoxCollider") {}
+cBoxCollider::cBoxCollider() : radius(0.5), DebugDraw(0), cCollider("BoxCollider") {}
 
-void cBoxCollider::Render()
-{
-}
-
+void cBoxCollider::Render() {}
 
 void ResolveP(cParticle *const b, const collisionInfo &ci, bool which) {
-  const double w = (which ? -1.0 : 1.0);  
-  auto reflection = b->GetVel() - 2.0  * ci.normal*(dot(b->GetVel(), ci.normal));
+  const double w = (which ? -1.0 : 1.0);
+  auto reflection = b->GetVel() - 2.0 * ci.normal * (dot(b->GetVel(), ci.normal));
   b->Teleport(b->GetPos() + (w * ci.normal) * (ci.depth * 0.5));
-  b->AddLinearImpulse(-b->GetVel() + (reflection*coef));
+  b->AddLinearImpulse(-b->GetVel() + (reflection * coef));
 }
 
 void Resolve(const collisionInfo &ci) {

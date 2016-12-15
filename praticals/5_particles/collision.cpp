@@ -5,6 +5,7 @@
 #include <glm/gtx/transform.hpp>
 using namespace std;
 using namespace glm;
+
 namespace collision {
 
 bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cSphereCollider &c1, const cSphereCollider &c2) {
@@ -39,8 +40,7 @@ bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cSphereCollider &s,
       return true;
     } else {
 
-      const auto  max_extents = length(dvec2(p.GetParent()->GetScale().x, p.GetParent()->GetScale().z));
-
+      const auto max_extents = length(dvec2(p.GetParent()->GetScale().x, p.GetParent()->GetScale().z));
 
       if (length(vecTemp) - s.radius > max_extents) {
         return false;
@@ -48,11 +48,12 @@ bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cSphereCollider &s,
 
       auto transform = translate(dmat4(1.0f), pp) * scale(dmat4(1.0f), p.GetParent()->GetScale()) *
                        mat4_cast(rotation(dvec3(0, 1.0, 0), p.normal_offset));
+      dvec3 A = dvec3(transform * dvec4(1.0f, 0.0f, -1.0f, 0)) - sp;
+      dvec3 B = dvec3(transform * dvec4(1.0f, 0.0f, 1.0f, 0)) - sp;
+      dvec3 C = dvec3(transform * dvec4(-1.0f, 0.0f, -1.0f, 0)) - sp;
+      // todo: we don't use D, the rest of this code is only for one traingle ABC, we need to check BDC too.
+      dvec3 D = dvec3(transform * dvec4(-1.0f, 0.0f, 1.0f, 0)) - sp;
 
-      dvec3 A =dvec3(dvec4(1.0f,0.0f,-1.0f,0) *transform) -sp;
-      dvec3 B =dvec3(dvec4(1.0f,0.0f,1.0f, 0) *transform) -sp;
-      dvec3 C =dvec3(dvec4(-1.0f,0.0f,-1.0f, 0) *transform) -sp;
-      dvec3 D =dvec3(dvec4(-1.0f,0.0f,1.0f, 0) *transform) -sp;
       auto rr = s.radius * s.radius;
       auto aa = dot(A, A);
       auto ab = dot(A, B);
@@ -61,15 +62,18 @@ bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cSphereCollider &s,
       auto bc = dot(B, C);
       auto cc = dot(C, C);
 
-      if ((aa > rr) && (ab > aa) && (ac > aa)) { 
-    //    civ.push_back({ &s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance });
-        return true; }
-      if ((bb > rr) && (ab > bb) && (bc > bb)) { 
-    //    civ.push_back({ &s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance });
-        return true; }
+      if ((aa > rr) && (ab > aa) && (ac > aa)) {
+        civ.push_back({&s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance});
+        return true;
+      }
+      if ((bb > rr) && (ab > bb) && (bc > bb)) {
+        civ.push_back({&s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance});
+        return true;
+      }
       if ((cc > rr) && (ac > cc) && (bc > cc)) {
-      //  civ.push_back({ &s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance });
-        return true; }
+        civ.push_back({&s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance});
+        return true;
+      }
 
       auto AB = B - A;
       auto BC = C - B;
@@ -87,17 +91,18 @@ bool IsCollidingCheck(std::vector<collisionInfo> &civ, const cSphereCollider &s,
       auto QA = A * e2 - Q2;
       auto QB = B * e3 - Q3;
 
-      if ((dot(Q1, Q1) > rr * e1 * e1) && (dot(Q1, QC) > 0)) { 
-        civ.push_back({ &s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance });
-        return true; }
-      if ((dot(Q2, Q2) > rr * e2 * e2) && (dot(Q2, QA) > 0)) { 
-        civ.push_back({ &s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance });
-        return true; }
-      if ((dot(Q3, Q3) > rr * e3 * e3) && (dot(Q3, QB) > 0)) { 
-        civ.push_back({ &s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance });
-        return true; 
+      if ((dot(Q1, Q1) > rr * e1 * e1) && (dot(Q1, QC) > 0)) {
+        civ.push_back({&s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance});
+        return true;
       }
-
+      if ((dot(Q2, Q2) > rr * e2 * e2) && (dot(Q2, QA) > 0)) {
+        civ.push_back({&s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance});
+        return true;
+      }
+      if ((dot(Q3, Q3) > rr * e3 * e3) && (dot(Q3, QB) > 0)) {
+        civ.push_back({&s, &p, sp - p.normal_offset * distance, p.normal_offset, s.radius - distance});
+        return true;
+      }
     }
   }
 

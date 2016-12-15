@@ -34,6 +34,7 @@ public:
   const glm::dvec3 GetPos() const;
   const glm::dvec3 GetVel() const;
   const glm::dvec3 GetForces() const;
+
 private:
   glm::dvec3 position_;
   glm::dvec3 velocity_;
@@ -59,6 +60,7 @@ public:
   double radius;
   cSphereCollider();
   virtual void Render();
+
 private:
 };
 
@@ -68,6 +70,7 @@ public:
   bool DebugDraw;
   cBoxCollider();
   virtual void Render();
+
 private:
 };
 
@@ -78,5 +81,6 @@ public:
   bool infinite;
   cPlaneCollider();
   virtual void Render();
+
 private:
 };
