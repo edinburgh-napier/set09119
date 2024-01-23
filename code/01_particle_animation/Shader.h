@@ -14,7 +14,7 @@
 // Helper function -- reads a text file to a string
 inline std::string ReadAllText(const std::string_view filepath)
 {
-	std::ifstream fs(filepath);
+	std::ifstream fs(filepath.data());
 	std::stringstream buffer;
 	buffer << fs.rdbuf();
 	return buffer.str();

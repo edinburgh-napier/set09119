@@ -30,3 +30,5 @@ target_link_libraries(${executable_name} ${LIBRARIES} )
 
 file(COPY resources DESTINATION ../bin) # Copy the resources so that when you package the executable, you can package the resources subfolder too
 file(COPY resources DESTINATION .)		# Copy the resources so that when debugging, you can see the resources, as the working directory is not at the executable location
+
+copy_dlls(${executable_name})

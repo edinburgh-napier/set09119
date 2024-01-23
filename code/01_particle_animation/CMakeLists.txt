@@ -19,4 +19,4 @@ include_directories( ${INCLUDE_DIRS} )
 add_executable(${executable_name} ${ALL_SOURCE_FILES} )
 set_target_properties(${executable_name} PROPERTIES OUTPUT_NAME ${executable_name} CLEAN_DIRECT_OUTPUT 1 DEBUG_POSTFIX "d")
 target_link_libraries(${executable_name} ${LIBRARIES} )
-
+copy_dlls(${executable_name})
